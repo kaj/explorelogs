@@ -11,12 +11,12 @@ public class LogTimer {
     private static List<?> extraInfo = asList("Foo", LogTimer.class, Integer.MAX_VALUE);
 
     public static void main(String[] args) {
+        long utilTime = measureUtil();
         long slf4jTime = measureSlf4j();
         long wrapTime = measureWrap();
         long log4jTime = measureLog4j();
         long commonsTime = measureCommons();
         long playTime = measurePlay();
-        long utilTime = measureUtil();
         String desc = ITER + " logged and " + ITER*ITER_DEBUG + " filtered messages.";
         System.out.println("java.util: " + utilTime + " ms for " + desc);
         System.out.println("slf4j: " + slf4jTime + " ms for " + desc);
@@ -28,6 +28,7 @@ public class LogTimer {
     }
 
     private static long measureUtil() {
+        System.setProperty("java.util.logging.config.file", "conf/logging.properties");
         final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LogTimer.class.getName());
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
