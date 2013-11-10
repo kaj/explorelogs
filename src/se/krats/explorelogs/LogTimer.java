@@ -11,20 +11,28 @@ public class LogTimer {
     private static List<?> extraInfo = asList("Foo", LogTimer.class, Integer.MAX_VALUE);
 
     public static void main(String[] args) {
-        long utilTime = measureUtil();
-        long slf4jTime = measureSlf4j();
-        long wrapTime = measureWrap();
-        long log4jTime = measureLog4j();
-        long commonsTime = measureCommons();
-        long playTime = measurePlay();
         String desc = ITER + " logged and " + ITER*ITER_DEBUG + " filtered messages.";
-        System.out.println("java.util: " + utilTime + " ms for " + desc);
-        System.out.println("slf4j: " + slf4jTime + " ms for " + desc);
-        System.out.println("my wrap: " + wrapTime + " ms for " + desc);
-        System.out.println("Log4j: " + log4jTime + " ms for " + desc);
-        System.out.println("Commons: " + commonsTime + " ms for " + desc);
-        System.out.println("Play: " + playTime + " ms for " + desc);
-        System.out.println("--");
+        if (isEnabled("jul", args))
+            System.out.println("java.util: " + measureUtil() + " ms for " + desc);
+        if (isEnabled("log4j", args))
+            System.out.println("Log4j: " + measureLog4j() + " ms for " + desc);
+        if (isEnabled("commons", args))
+            System.out.println("Commons: " + measureCommons() + " ms for " + desc);
+        if (isEnabled("slf4j", args))
+            System.out.println("slf4j: " + measureSlf4j() + " ms for " + desc);
+        if (isEnabled("play", args))
+            System.out.println("Play: " + measurePlay() + " ms for " + desc);
+        if (isEnabled("my", args))
+            System.out.println("my wrap: " + measureWrap() + " ms for " + desc);
+    }
+
+    private static boolean isEnabled(String string, String[] args) {
+        for (String arg : args) {
+            if ("all".equalsIgnoreCase(arg) || string.equalsIgnoreCase(arg)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long measureUtil() {
