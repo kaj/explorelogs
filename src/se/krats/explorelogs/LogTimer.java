@@ -1,14 +1,11 @@
 package se.krats.explorelogs;
-import static java.util.Arrays.asList;
 
-import java.util.List;
 
 public class LogTimer {
 
-    private static final int ITER = 10;
-    private static final int ITER_DEBUG = 10;
-
-    private static List<?> extraInfo = asList("Foo", LogTimer.class, Integer.MAX_VALUE);
+    private static final int ITER = 100;
+    private static final int ITER_DEBUG = 100;
+    private static final int MAX_FIB = 1;
 
     public static void main(String[] args) {
         String desc = ITER + " logged and " + ITER*ITER_DEBUG + " filtered messages.";
@@ -40,9 +37,9 @@ public class LogTimer {
         final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LogTimer.class.getName());
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            logger.log(java.util.logging.Level.INFO, "Message #{0} through java.util logger: {1}", new Object[]{i, extraInfo});
+            logger.log(java.util.logging.Level.INFO, "Message #{0} through java.util logger: {1}", new Object[]{i, new LazyFib(i)});
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.log(java.util.logging.Level.FINER, "Message #{0},{1} through java.util logger: {2}", new Object[]{i, j, extraInfo});
+                logger.log(java.util.logging.Level.FINER, "Message #{0},{1} through java.util logger: {2}", new Object[]{i, j, new LazyFib(j)});
             }
         }
         return System.currentTimeMillis() - start;
@@ -52,9 +49,9 @@ public class LogTimer {
         final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogTimer.class);
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            logger.info("Message #{} through slf4j logger: {}", i, extraInfo);
+            logger.info("Message #{} through slf4j logger: {}", i, new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.debug("Message #{},{} through slf4j logger: {}", new Object[]{i, j, extraInfo});
+                logger.debug("Message #{},{} through slf4j logger: {}", new Object[]{i, j, new LazyFib(j)});
             }
         }
         return System.currentTimeMillis() - start;
@@ -64,9 +61,9 @@ public class LogTimer {
         final LogWrapper logger = LogWrapper.forCaller();
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            logger.info("Message #%d through wrap logger: %s", i, extraInfo);
+            logger.info("Message #%d through wrap logger: %s", i, new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.debug("Message #%d,%d through wrapp logger: %s", i, j, extraInfo);
+                logger.debug("Message #%d,%d through wrapp logger: %s", i, j, new LazyFib(j));
             }
         }
         return System.currentTimeMillis() - start;
@@ -76,9 +73,9 @@ public class LogTimer {
         final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(LogTimer.class);
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            logger.info("Message #" + i + " through log4j logger: " + extraInfo);
+            logger.info("Message #" + i + " through log4j logger: " + new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.debug("Message #" + i + "," + j + " through log4j logger: " + extraInfo);
+                logger.debug("Message #" + i + "," + j + " through log4j logger: " + new LazyFib(j));
             }
         }
         return System.currentTimeMillis() - start;
@@ -88,9 +85,9 @@ public class LogTimer {
         final org.apache.commons.logging.Log logger = org.apache.commons.logging.LogFactory.getLog(LogTimer.class);
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            logger.info("Message #" + i + " through commons logger: " + extraInfo);
+            logger.info("Message #" + i + " through commons logger: " + new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.debug("Message #" + i + "," + j + " through commons logger: " + extraInfo);
+                logger.debug("Message #" + i + "," + j + " through commons logger: " + new LazyFib(j));
             }
         }
         return System.currentTimeMillis() - start;
@@ -102,12 +99,34 @@ public class LogTimer {
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < ITER; ++i) {
-            play.Logger.info("Message #%d through play logger: %s", i, extraInfo);
+            play.Logger.info("Message #%d through play logger: %s", i, new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                play.Logger.debug("Message #%d,%d through play logger: %s", i, j, extraInfo);
+                play.Logger.debug("Message #%d,%d through play logger: %s", i, j, new LazyFib(j));
             }
         }
         return System.currentTimeMillis() - start;
     }
 
+    /**
+     * A simple object with a slow toString method.
+     */
+    private static class LazyFib {
+        final int i;
+
+        public LazyFib(int i) {
+            this.i = i % MAX_FIB;
+        }
+
+        public String toString() {
+            return "fib(" + i + ") = " + fib(i);
+        }
+
+        private final static int fib(int i) {
+            if (i < 2) {
+                return 1;
+            } else {
+                return fib(i-1) + fib(i-2);
+            }
+        }
+    }
 }
