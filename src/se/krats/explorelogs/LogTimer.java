@@ -51,7 +51,7 @@ public class LogTimer {
         for (int i = 0; i < ITER; ++i) {
             logger.info("Message #{} through slf4j logger: {}", i, new LazyFib(i));
             for (int j = 0; j < ITER_DEBUG; ++j) {
-                logger.debug("Message #{},{} through slf4j logger: {}", new Object[]{i, j, new LazyFib(j)});
+                logger.debug("Message #{},{} through slf4j logger: {}", i, j, new LazyFib(j));
             }
         }
         return System.currentTimeMillis() - start;
